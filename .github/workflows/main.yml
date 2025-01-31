@@ -16,19 +16,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
-      uses: actions/setup-python@v2
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: ${{ matrix.python-version }}
-        allow-prereleases: true
+        version: "latest"
+
+    - name: Install the specified Python version using UV
+      run: |
+        uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
-        pip3 install codecov pytest-cov || pip3 install --user codecov pytest-cov
+        python -m pip install codecov pytest-cov || pip3 install --user codecov pytest-cov
         
     - name: Run tests
       run: |
-        pip3 install ".[test]"
+        python -m pip install ".[test]"
         coverage run --source=dcor/ --omit=dcor/tests/ -m pytest --doctest-glob=""
     
     - name: Generate coverage XML
